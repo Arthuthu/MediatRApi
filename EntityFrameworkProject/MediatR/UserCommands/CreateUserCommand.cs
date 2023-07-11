@@ -1,8 +1,6 @@
 ﻿using EntityRepository.Models;
 using EntityRepository.Repository;
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace EntityFrameworkProject.MediatR.UserCommands;
 

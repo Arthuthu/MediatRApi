@@ -4,18 +4,18 @@ using MediatR;
 
 namespace EntityFrameworkProject.MediatR.UserCommands;
 
-public record GetUserQuery(Guid Id) : IRequest<User?>;
+public record GetUserByIdQuery(Guid Id) : IRequest<User?>;
 
-public class GetUserHandler : IRequestHandler<GetUserQuery, User?>
+public class GetUserByIdHandler : IRequestHandler<GetUserByIdQuery, User?>
 {
     private readonly IUserRepository _userRepository;
 
-    public GetUserHandler(IUserRepository userRepository)
+    public GetUserByIdHandler(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
-    public async Task<User?> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    public async Task<User?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
         User? user = await _userRepository.Get(request.Id);
 

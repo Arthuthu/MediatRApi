@@ -13,16 +13,13 @@ namespace EntityFrameworkProject.Controllers.v1;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
     private readonly IMediator _mediator;
     private readonly ILogger<UserController> _logger;
 
     public UserController(
-        IUserRepository userRepository,
         ILogger<UserController> logger,
         IMediator mediator)
     {
-        _userRepository = userRepository;
         _logger = logger;
         _mediator = mediator;
     }
@@ -33,9 +30,10 @@ public class UserController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> Get()
     {
-        List<User>? users = await _userRepository.Get();
+        var query = new GetUsersQuery();
+        var users = await _mediator.Send(query);
 
-        return users is not null ? Ok(users) : NotFound();
+        return users is not null ? Ok(users) : NotFound("Users not found");
     }
 
     [HttpGet]
@@ -44,10 +42,10 @@ public class UserController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> Get(Guid id)
     {
-        var query = new GetUserQuery(id);
-        var userResult = await _mediator.Send(query);
+        var query = new GetUserByIdQuery(id);
+        var user = await _mediator.Send(query);
 
-        return userResult is not null ? Ok(userResult) : NotFound();
+        return user is not null ? Ok(user) : NotFound("User not found");
     }
 
     [HttpPost]
@@ -60,11 +58,10 @@ public class UserController : ControllerBase
         try
         {
             var command = new CreateUserCommand(requestUser.Name);
+            var user = await  _mediator.Send(command);
+            _logger.LogInformation($"User {user.Name} was created");
 
-            var userResult = await  _mediator.Send(command);
-            _logger.LogInformation($"User {userResult.Name} was created");
-
-            return Ok(userResult);
+            return Ok(user);
         }
         catch (Exception ex)
         {
@@ -82,11 +79,18 @@ public class UserController : ControllerBase
     {
         try
         {
-            User user = requestUser.UpdateRequestToDomain();
-            bool userWasUpdated = await _userRepository.Update(user);
-            _logger.LogInformation($"The user {user.Name} was updated.");
+            var user = requestUser.UpdateRequestToDomain();
+            var command = new UpdateUserCommand(user);
+            User? responseUser = await _mediator.Send(command);
 
-            return userWasUpdated is true ? Ok(user) : BadRequest();
+            if (responseUser is not null)
+            {
+                _logger.LogInformation($"The user {user.Name} was updated to {responseUser.Name}");
+
+                return Ok(responseUser);
+            }
+
+            return BadRequest();
         }
         catch (Exception ex)
         {
@@ -104,10 +108,17 @@ public class UserController : ControllerBase
     {
         try
         {
-            bool userWasDeleted = await _userRepository.Delete(id);
-            _logger.LogInformation("The user was sucessfully deleted");
+            var command = new DeleteUserCommand(id);
+            var user = await _mediator.Send(command);
 
-            return userWasDeleted is true ? Ok() : NotFound();
+            if (user is not null)
+            {
+                _logger.LogInformation("The user was sucessfully deleted");
+
+                return Ok(user);
+            }
+
+            return NotFound("User not found");
         }
         catch (Exception ex)
         {

@@ -36,7 +36,7 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<bool> Update(User user)
+    public async Task<User?> Update(User user)
     {
         User? requestedUser = await _context.Users.FindAsync(user.Id);
 
@@ -46,24 +46,24 @@ public class UserRepository : IUserRepository
 
             await _context.SaveChangesAsync();
 
-            return true;
+            return requestedUser;
         }
 
-        return false;
+        return null;
     }
 
-    public async Task<bool> Delete(Guid id)
+    public async Task<User?> Delete(Guid id)
     {
         User? user = await _context.Users.FindAsync(id);
 
         if (user is null) 
         {
-            return false;
+            return null;
         }
 
         var entityState = _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
-        return entityState.State == EntityState.Detached ? true : false;
+        return entityState.State == EntityState.Detached ? user : null;
     }
 }
