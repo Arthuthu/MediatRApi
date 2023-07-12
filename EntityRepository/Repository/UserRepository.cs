@@ -17,8 +17,6 @@ public class UserRepository : IUserRepository
 
     public async Task<List<User>?> Get(CancellationToken cancellationToken)
     {
-        await Task.Delay(5000);
-
         List<User> users = await _context.Users.ToListAsync(cancellationToken);
 
         return users is not null ? users : null;
