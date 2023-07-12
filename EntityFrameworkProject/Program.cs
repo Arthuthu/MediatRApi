@@ -9,7 +9,6 @@ var config = builder.Configuration;
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRepositoryTest, RepositoryTest>();
 
-
 builder.Services.AddDbContext<ApplicationDbContext>
     (options => options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 

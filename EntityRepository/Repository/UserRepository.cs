@@ -2,6 +2,7 @@
 using EntityRepository.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace EntityRepository.Repository;
 
@@ -14,16 +15,18 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<List<User>?> Get()
+    public async Task<List<User>?> Get(CancellationToken cancellationToken)
     {
-        List<User> users = await _context.Users.ToListAsync();
+        await Task.Delay(5000);
+
+        List<User> users = await _context.Users.ToListAsync(cancellationToken);
 
         return users is not null ? users : null;
     }
 
-    public async Task<User?> Get(Guid id)
+    public async Task<User?> Get(Guid id, CancellationToken cancellationToken)
     {
-        User? user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+        User? user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
 
         return user is not null ? user : null;
     }

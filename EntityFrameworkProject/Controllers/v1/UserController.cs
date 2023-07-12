@@ -28,10 +28,10 @@ public class UserController : ControllerBase
     [Route("/users/get")]
     [ProducesResponseType(typeof(List<User>), 200)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
         var query = new GetUsersQuery();
-        var users = await _mediator.Send(query);
+        var users = await _mediator.Send(query, cancellationToken);
 
         return users is not null ? Ok(users) : NotFound("Users not found");
     }
@@ -40,10 +40,10 @@ public class UserController : ControllerBase
     [Route("/users/{id:guid}")]
     [ProducesResponseType(typeof(User), 200)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> Get(Guid id)
+    public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
     {
         var query = new GetUserByIdQuery(id);
-        var user = await _mediator.Send(query);
+        var user = await _mediator.Send(query, cancellationToken);
 
         return user is not null ? Ok(user) : NotFound("User not found");
     }
